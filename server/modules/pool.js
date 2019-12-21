@@ -6,6 +6,8 @@
 
 const pg = require('pg');
 const url = require('url');
+const dotenv = require('dotenv');
+dotenv.config();
 let config = {};
 
 if (process.env.DATABASE_URL) {
