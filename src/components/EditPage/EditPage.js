@@ -187,6 +187,81 @@ class EditPage extends Component{
         const classes = this.props.classes;
         const state = this.state;
         if(this.state.title){
+            const titleInput = (
+                <div>
+                    <TextField
+                        onChange={this.handleTextInput('title')}
+                        value={state.title}
+                        label='title'
+                        className={classes.white}
+                        InputProps={{
+                            className: `${classes.white} ${classes.largeFont}`
+                        }}
+                        InputLabelProps={{
+                            className: classes.white
+                        }}
+                    />
+                </div>
+            )
+            const genresDisplay = (
+                state.genres.map((genre, i) => {
+                    return (
+                        <Button key={i} className={classes.dangerButton}
+                        onClick={this.toggleGenre(genre)} variant="contained">
+                            {genre.name} <DeleteIcon className={classes.buttonIcon}/>
+                        </Button>
+                    )
+                }).concat(
+                    state.genresToAdd.map((genre, i) => (
+                        <Button key={i} className={classes.dangerButton}
+                        onClick={this.removeFromGenresToAdd(genre)}>
+                            {genre.name} <DeleteIcon className={classes.buttonIcon}/>
+                        </Button>
+                    ))
+                )
+            );
+            const genresSection = (
+                <div className={classes.addGenreSection}>
+                    {genresDisplay}
+                    <FormControl classes={{root: classes.selectGenre}}>
+                        <InputLabel className={classes.white}>Select Genre </InputLabel>
+                        <Select value={this.state.genreToAdd} className={classes.white}
+                        onChange={this.handleSelectGenreChange}>
+                            {this.props.genres
+                                .map((genre, i) => {
+                                    for(const g of this.state.genres){
+                                        if(genre.id === g.id) return null;
+                                    }
+                                    for(const g of this.state.genresToAdd){
+                                        if(genre.id === g.id) return null;
+                                    }
+                                    return <MenuItem key={i} value={genre}>{genre.name}</MenuItem>
+                            })}
+                        </Select>
+                    </FormControl>
+                    <Button variant="contained"
+                    className={classes.button}
+                    onClick={this.addToGenresToAdd}
+                    >+</Button>
+                </div>
+            );
+                            
+            const descriptionInput = (
+                <TextField
+                    onChange={this.handleTextInput('description')}
+                    value={state.description}
+                    label='description'
+                    multiline
+                    fullWidth={true}
+                    className={classes.white}
+                    InputProps={{
+                        className: classes.white
+                    }}
+                    InputLabelProps={{
+                        className: classes.white
+                    }}
+                />
+            );
             return(
                 <div className={classes.editCard}>
                     <div className={classes.row}>
@@ -194,72 +269,9 @@ class EditPage extends Component{
                             alt={state.title}
                             className={classes.poster} />
                         <div className={classes.infoCard}>
-                            <div>
-                                <TextField
-                                    onChange={this.handleTextInput('title')}
-                                    value={state.title}
-                                    label='title'
-                                    className={classes.white}
-                                    InputProps={{
-                                        className: `${classes.white} ${classes.largeFont}`
-                                    }}
-                                    InputLabelProps={{
-                                        className: classes.white
-                                    }}
-                                />
-                            </div>
-                            {state.genres.map((genre, i) => {
-                                return (
-                                    <Button key={i} className={classes.dangerButton}
-                                    onClick={this.toggleGenre(genre)} variant="contained">
-                                        {genre.name} <DeleteIcon className={classes.buttonIcon}/>
-                                    </Button>
-                                )
-                            })}
-                            {state.genresToAdd.map((genre, i) => {
-                                return (
-                                    <Button key={i} className={classes.dangerButton}
-                                    onClick={this.removeFromGenresToAdd(genre)}>
-                                        {genre.name} <DeleteIcon className={classes.buttonIcon}/>
-                                    </Button>
-                                )
-                            }) }
-                            <div className={classes.addGenreSection}>
-                                <FormControl classes={{root: classes.selectGenre}}>
-                                    <InputLabel className={classes.white}>Select Genre </InputLabel>
-                                    <Select value={this.state.genreToAdd} className={classes.white}
-                                    onChange={this.handleSelectGenreChange}>
-                                        {this.props.genres
-                                            .map((genre, i) => {
-                                                for(const g of this.state.genres){
-                                                    if(genre.id === g.id) return null;
-                                                }
-                                                for(const g of this.state.genresToAdd){
-                                                    if(genre.id === g.id) return null;
-                                                }
-                                                return <MenuItem key={i} value={genre}>{genre.name}</MenuItem>
-                                        })}
-                                    </Select>
-                                </FormControl>
-                                <Button variant="contained"
-                                className={classes.button}
-                                onClick={this.addToGenresToAdd}
-                            >+</Button>
-                            </div>
-                            <TextField
-                            onChange={this.handleTextInput('description')}
-                            value={state.description}
-                            label='description'
-                            multiline
-                            fullWidth={true}
-                            className={classes.white}
-                            InputProps={{
-                                className: classes.white
-                            }}
-                            InputLabelProps={{
-                                className: classes.white
-                            }}
-                            />
+                            {titleInput}
+                            {genresSection}
+                            {descriptionInput}
                             <Button className={classes.cancelButton}
                                 variant="contained"
                                 onClick={this.cancleChanges}
