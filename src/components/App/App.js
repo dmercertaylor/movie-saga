@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
-import {HashRouter as Router, Route, Switch, Link} from 'react-router-dom';
+import {HashRouter as Router, Route, Switch} from 'react-router-dom';
 import './App.css';
-import HomePage from '../HomePage/HomePage';
+import MovieList from '../MovieList/MovieList';
+import MovieDetails from '../MovieDetails/MovieDetails';
+import {connect} from 'react-redux';
+import Navbar from '../Navbar/Navbar';
+import EditPage from '../EditPage/EditPage';
 
 class App extends Component {
   // Renders the entire app on the DOM
@@ -9,9 +13,19 @@ class App extends Component {
     return (
       <div className="App">
         <Router>
+          <Navbar />
           <Switch>
             <Route exact path='/'>
-              <HomePage />
+              <MovieList payload={{noDescription: true}} />
+            </Route>
+            <Route exact path="/genre/:genre">
+              <MovieList payload={{ noDescription: true }} />
+            </Route>
+            <Route path="/details/:id">
+              <MovieDetails />
+            </Route>
+            <Route path="/edit/:id">
+              <EditPage />
             </Route>
           </Switch>
         </Router>
@@ -20,4 +34,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default connect()(App);
