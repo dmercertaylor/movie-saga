@@ -29,7 +29,6 @@ class Navbar extends Component{
     }
 
     render(){
-        console.log(this.props);
         const classes = this.props.classes;
         if(this.props.match.isExact === false){
             let currentlyShowing;

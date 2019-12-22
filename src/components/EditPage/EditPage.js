@@ -141,17 +141,30 @@ class EditPage extends Component{
             data.description = this.state.description;
         }
 
-        if(this.state.descriptionDidChange || this.state.titleDidChange){
-            axios.put(`/api/movies/${this.state.id}`, data);
+        let putRoute = (this.state.descriptionDidChange || this.state.titleDidChange);
+        let deleteRoute = (this.state.genresToRemove.length > 0);
+        let postRoute = (this.state.genresToAdd.length > 0)
+        if(putRoute){
+            axios.put(`/api/movies/${this.state.id}`, data)
+                .then(response => {
+                    if(!deleteRoute && !postRoute){
+                        this.cancelChanges();
+                    }
+                });
         }
 
-        if(this.state.genresToRemove.length > 0){
+        if(deleteRoute){
             this.state.genresToRemove.forEach(genre => {
-                axios.delete(`/api/genres/${this.state.movie.id}/${genre.id}`);
+                axios.delete(`/api/genres/${this.state.movie.id}/${genre.id}`)
+                    .then(response => {
+                        if(!postRoute){
+                            this.cancleChanges();
+                        }
+                    })
             });
         }
         
-        if(this.state.genresToAdd.length > 0){
+        if(postRoute){
             const data = this.state.genresToAdd.map(genre => {
                 return {genreId: genre.id, movieId: this.state.movie.id}
             });
@@ -159,7 +172,8 @@ class EditPage extends Component{
                 .then(response=>{
                     this.cancleChanges();
                 })
-        } else {
+        }
+        if(!putRoute && !postRoute && !deleteRoute){
             this.cancleChanges();
         }
     }

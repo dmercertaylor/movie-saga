@@ -30,11 +30,13 @@ class MovieDetails extends Component{
 
     componentDidMount(){
         this.getDetails();
+        this.props.dispatch({type: "SET_DISPLAY", payload: ""});
     }
 
     componentDidUpdate(prevProps, prevState){
-        if(prevProps.location !== this.props.location){
+        if(prevProps.location.pathname !== this.props.location.pathname){
             this.getDetails();
+            this.props.dispatch({type: "SET_DISPLAY", payload: ""});
         }
     }
 
