@@ -148,7 +148,7 @@ class EditPage extends Component{
             axios.put(`/api/movies/${this.state.id}`, data)
                 .then(response => {
                     if(!deleteRoute && !postRoute){
-                        this.cancelChanges();
+                        this.cancleChanges();
                     }
                 });
         }
