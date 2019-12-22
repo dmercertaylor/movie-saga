@@ -42,9 +42,13 @@ const EditPageStyle = theme => ({
     selectGenre: {
         height: '100%',
         borderColor: 'white',
+        color: 'white',
         minWidth: '9rem',
         margin: '0.5rem',
         marginTop: '0px'
+    },
+    addGenreSection: {
+        display: 'inline-block'
     }
 });
 

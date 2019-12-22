@@ -93,12 +93,15 @@ class EditPage extends Component{
             data.description = this.state.description;
         }
 
+        // Define which routes I'll be making requests to.
         let putRoute = (this.state.descriptionDidChange || this.state.titleDidChange);
         let deleteRoute = (this.state.genresToRemove.length > 0);
         let postRoute = (this.state.genresToAdd.length > 0)
+
         if(putRoute){
             axios.put(`/api/movies/${this.state.id}`, data)
                 .then(response => {
+                    // Check if other async things are happening
                     if(!deleteRoute && !postRoute){
                         this.cancleChanges();
                     }
@@ -109,6 +112,7 @@ class EditPage extends Component{
             this.state.genresToRemove.forEach(genre => {
                 axios.delete(`/api/genres/${this.state.movie.id}/${genre.id}`)
                     .then(response => {
+                        // Check if other async things are happening
                         if(!postRoute){
                             this.cancleChanges();
                         }
@@ -125,6 +129,7 @@ class EditPage extends Component{
                     this.cancleChanges();
                 })
         }
+
         if(!putRoute && !postRoute && !deleteRoute){
             this.cancleChanges();
         }
@@ -219,26 +224,28 @@ class EditPage extends Component{
                                     </Button>
                                 )
                             }) }
-                            <FormControl classes={{root: classes.selectGenre}}>
-                                <InputLabel className={classes.white}>Select Genre </InputLabel>
-                                <Select value={this.state.genreToAdd} className={classes.white}
-                                onChange={this.handleSelectGenreChange}>
-                                    {this.props.genres
-                                        .map((genre, i) => {
-                                            for(const g of this.state.genres){
-                                                if(genre.id === g.id) return null;
-                                            }
-                                            for(const g of this.state.genresToAdd){
-                                                if(genre.id === g.id) return null;
-                                            }
-                                            return <MenuItem key={i} value={genre}>{genre.name}</MenuItem>
-                                    })}
-                                </Select>
-                            </FormControl>
-                            <Button variant="contained"
+                            <div className={classes.addGenreSection}>
+                                <FormControl classes={{root: classes.selectGenre}}>
+                                    <InputLabel className={classes.white}>Select Genre </InputLabel>
+                                    <Select value={this.state.genreToAdd} className={classes.white}
+                                    onChange={this.handleSelectGenreChange}>
+                                        {this.props.genres
+                                            .map((genre, i) => {
+                                                for(const g of this.state.genres){
+                                                    if(genre.id === g.id) return null;
+                                                }
+                                                for(const g of this.state.genresToAdd){
+                                                    if(genre.id === g.id) return null;
+                                                }
+                                                return <MenuItem key={i} value={genre}>{genre.name}</MenuItem>
+                                        })}
+                                    </Select>
+                                </FormControl>
+                                <Button variant="contained"
                                 className={classes.button}
                                 onClick={this.addToGenresToAdd}
                             >+</Button>
+                            </div>
                             <TextField
                             onChange={this.handleTextInput('description')}
                             value={state.description}
