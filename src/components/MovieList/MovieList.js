@@ -34,5 +34,5 @@ class MovieList extends Component{
 }
 
 export default withRouter(
-  connect((r)=>({movies: r.movies}))(MovieList)
+  connect((r)=>({movies: r.moviesReducer}))(MovieList)
 );

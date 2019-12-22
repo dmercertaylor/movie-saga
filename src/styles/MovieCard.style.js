@@ -22,8 +22,10 @@ const MovieCardStyle = theme => {
         alignItems: "flex-start",
         textAlign: "left",
         width: '100%',
-        '@media (max-width: 560px)': {
-            flexWrap: 'wrap'
+        '@media (max-width: 540px)': {
+            flexFlow: "column nowrap",
+            alignItems: "center",
+            textAlign: "center"
         }
     },
     poster: {

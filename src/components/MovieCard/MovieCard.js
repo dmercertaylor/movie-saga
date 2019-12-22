@@ -8,6 +8,7 @@ import MovieCardStyle from '../../styles/MovieCard.style';
 
 class MovieCard extends Component{
     state = {
+        loaded: false,
         genres: []
     }
 
@@ -20,7 +21,8 @@ class MovieCard extends Component{
         axios.get(`/api/genres/${movie.id}`)
             .then(response => {
                 this.setState({
-                    genres: response.data
+                    genres: response.data,
+                    loaded: true
                 });
             }).catch(err => console.log(err));
     }
@@ -53,6 +55,22 @@ class MovieCard extends Component{
             );
         }
 
+        const genres = (this.state.loaded)?(
+            this.state.genres.map((genre, i) => {
+                if(genre.name === this.props.currentDisplay){
+                    return null;
+                }
+                return (
+                    <Button key={i} className={classes.button}
+                    onClick={this.toGenre(genre.name)} variant="contained">
+                        {genre.name}
+                    </Button>
+                )
+            })
+        ):(
+            <p>Loading genres...</p>
+        )
+
         return(
             <div key={movie.id} className={classes.movieCard}>
                 <div className={classes.row}>
@@ -61,17 +79,7 @@ class MovieCard extends Component{
                         className={classes.poster} />
                     <div className={classes.infoCard}>
                         <h2>{movie.title}</h2>
-                        {this.state.genres.map((genre, i) => {
-                            if(genre.name === this.props.currentDisplay){
-                                return null;
-                            }
-                            return (
-                                <Button key={i} className={classes.button}
-                                onClick={this.toGenre(genre.name)} variant="contained">
-                                    {genre.name}
-                                </Button>
-                            )
-                        }).filter(a => a !== null)}
+                        {genres}
                         {details}
                     </div>
                 </div>
@@ -82,6 +90,6 @@ class MovieCard extends Component{
 
 export default withRouter(
     withStyles(MovieCardStyle)(
-        connect((r)=>({currentDisplay: r.display}))(MovieCard)
+        connect((r)=>({currentDisplay: r.displayReducer}))(MovieCard)
     )
 );

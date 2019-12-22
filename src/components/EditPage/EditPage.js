@@ -6,59 +6,11 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import SaveIcon from '@material-ui/icons/Save';
 import axios from 'axios';
 import MovieCardStyle from '../../styles/MovieCard.style';
+import EditPageStyle from './EditPage.style';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import { Select, FormControl, InputLabel, MenuItem } from '@material-ui/core';
 
-const styles = theme => ({
-    editCard: {
-        color: 'white',
-        margin: '1rem',
-        textAlign: 'center'
-    },
-    dangerButton: {
-        margin: "0.5rem",
-        backgroundColor: '#664444',
-        color: 'white',
-        '&:hover':{
-            backgroundColor: '#885555'
-        }
-    },
-    buttonIcon: {
-        margin: '0px',
-        marginLeft: '0.5rem'
-    }, 
-    saveButton: {
-        margin: '1rem',
-        color: 'white',
-        backgroundColor: '#557755',
-        '&:hover': {
-            backgroundColor: '#559055'
-        }
-    },
-    cancelButton: {
-        color: 'white',
-        margin: '1rem',
-        backgroundColor: '#664444',
-        '&:hover':{
-            backgroundColor: '#885555'
-        }
-    },
-    white: {
-        color: 'white',
-        borderColor: 'white'
-    },
-    largeFont: {
-        fontSize: '1.5rem'
-    },
-    selectGenre: {
-        height: '100%',
-        borderColor: 'white',
-        minWidth: '9rem',
-        margin: '0.5rem',
-        marginTop: '0px'
-    }
-})
 
 class EditPage extends Component{
     state = {
@@ -324,8 +276,8 @@ class EditPage extends Component{
     }
 }
 
-export default withStyles((theme)=>({...MovieCardStyle(theme), ...styles(theme) }))(
+export default withStyles((theme)=>({...MovieCardStyle(theme), ...EditPageStyle(theme) }))(
     withRouter(
-        connect((r)=>({genres: r.genres}))(EditPage)
+        connect((r)=>({genres: r.genresReducer}))(EditPage)
     )
 )

@@ -59,5 +59,5 @@ class Navbar extends Component{
 }
 
 export default withStyles(styles)(
-    withRouter(connect((r)=>({currentDisplay: r.display}))(Navbar))
+    withRouter(connect((r)=>({currentDisplay: r.displayReducer}))(Navbar))
 );
