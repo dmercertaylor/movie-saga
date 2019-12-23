@@ -1,5 +1,3 @@
-const lighterGray = '#202029';
-
 const EditPageStyle = theme => ({
     editCard: {
         color: 'white',
@@ -47,7 +45,7 @@ const EditPageStyle = theme => ({
         color: 'white',
         minWidth: '9rem',
         margin: '0.5rem',
-        marginTop: '0px'
+        marginTop: '0.65rem'
     },
     addGenreSection: {
         display: 'inline-block'

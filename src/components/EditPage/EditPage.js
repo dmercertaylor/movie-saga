@@ -9,7 +9,7 @@ import MovieCardStyle from '../../styles/MovieCard.style';
 import EditPageStyle from './EditPage.style';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
-import { Select, FormControl, InputLabel, MenuItem } from '@material-ui/core';
+import { Select, FormControl, InputLabel } from '@material-ui/core';
 import Modal from '@material-ui/core/Modal';
 
 class EditPage extends Component{
@@ -20,7 +20,6 @@ class EditPage extends Component{
         genres: [],
         genresToAdd: [],
         genresToRemove: [],
-        genreToAdd: '',
         addGenreModalOpen: false
     }
 
@@ -140,20 +139,6 @@ class EditPage extends Component{
         this.props.history.push(`/details/${this.props.match.params.id}`);
     }
 
-    handleSelectGenreChange = (event) => {
-        if(event.target.value === 'Add New'){
-            event.stopPropagation();
-            this.setState({
-                genreToAdd: '',
-                addGenreModalOpen: true
-            });
-        } else {
-            this.setState({
-                genreToAdd: event.target.value
-            });
-        }
-    }
-
     removeFromGenresToAdd = genre => event => {
         let newGenresToAdd = this.state.genresToAdd;
         let i;
@@ -167,40 +152,61 @@ class EditPage extends Component{
     }
 
     addToGenresToAdd = event => {
-        let i;
-        const s = this.state;
-        if(s.genreToAdd === ''){
+        if(event.target.value === 'Add New'){
+            event.stopPropagation();
+            this.setState({
+                addGenreModalOpen: true
+            });
             return;
         }
 
+        if(event.target.value === 'Select Genre'){
+            return;
+        }
+
+        const s = this.state;
+
         let genre;
-        for(const g of this.props.genres){
-            if(s.genreToAdd === g.name){
+        for(let g of this.props.genres){
+            if(event.target.value === g.name){
                 genre = g;
                 break;
             }
         }
 
+        for(let g of this.state.genres){
+            if(g.id === genre.id) return;
+        }
+        for(let g of this.state.genresToAdd){
+            if(g.id === genre.id) return;
+        }
+
+        let i;
         for(i = 0; i < s.genresToRemove.length; i++){
             if(s.genresToRemove[i].id === genre.id) break;
         }
+
         if(i === s.genresToRemove.length){
             this.setState({
-                genresToAdd: [...s.genresToAdd, genre],
-                genreToAdd: ''
+                genresToAdd: [...s.genresToAdd, genre]
             });
         } else {
             const newG = s.genresToRemove;
             newG.splice(i, 1);
             this.setState({
                 genresToRemove: newG,
-                genreToAdd: '',
                 genres: [...s.genres, genre]
             });
         }
     }
 
     getNewGenreFromModal = genre => {
+        if(!genre){
+            this.setState({
+                addGenreModalOpen: false
+            });
+            return;
+        }
         this.props.dispatch({type: 'GET_GENRES'});
         this.setState({
             addGenreModalOpen: false,
@@ -238,7 +244,7 @@ class EditPage extends Component{
                     )
                 }).concat(
                     state.genresToAdd.map((genre, i) => (
-                        <Button key={genre.id} className={classes.dangerButton}
+                        <Button key={state.genres.length + i} className={classes.dangerButton}
                         onClick={this.removeFromGenresToAdd(genre)}>
                             {genre.name} <DeleteIcon className={classes.buttonIcon}/>
                         </Button>
@@ -250,10 +256,9 @@ class EditPage extends Component{
                 <div className={classes.addGenreSection}>
                     {genresDisplay}
                     <FormControl classes={{root: classes.selectGenre}}>
-                        <InputLabel className={classes.white}>Select Genre </InputLabel>
-                        <Select native value={this.state.genreToAdd} className={classes.white}
-                        onChange={this.handleSelectGenreChange}>
-                            <option value={''}></option>
+                        <Select native value='Select Genre' className={classes.white}
+                        onChange={this.addToGenresToAdd}>
+                            <option value={''}>+ Select Genre</option>
                             {this.props.genres
                                 .map((genre, i) => {
                                     for(const g of this.state.genres){
@@ -262,15 +267,11 @@ class EditPage extends Component{
                                     for(const g of this.state.genresToAdd){
                                         if(genre.id === g.id) return null;
                                     }
-                                    return <option key={genre.id} value={genre.name}>{genre.name}</option>
+                                    return <option key={i} value={genre.name}>{genre.name}</option>
                             })}
                             <option value={'Add New'}>Add New...</option>
                         </Select>
                     </FormControl>
-                    <Button variant="contained"
-                    className={classes.button}
-                    onClick={this.addToGenresToAdd}
-                    >+</Button>
                 </div>
             );
                             
@@ -298,6 +299,7 @@ class EditPage extends Component{
                         open={state.addGenreModalOpen}
                         cancle={(e)=>{e.preventDefault(); this.setState({addGenreModalOpen: false})}}
                         classes={classes}
+                        addToGenresToAdd={this.addToGenresToAdd}
                         returnNewGenre={this.getNewGenreFromModal}
                     />
                     <div className={classes.row}>
@@ -357,7 +359,14 @@ function AddGenreModal(props){
                         setGenre('');
                         props.returnNewGenre({name: genre, id: responseTwo.data[0].id});
                     })
-            }).catch(err => console.log(err));
+            }).catch(err => {
+                console.log(err);
+                if(err.response.status === 400){
+                    props.addToGenresToAdd({target: {value: genre}});
+                    setGenre('');
+                    props.returnNewGenre(null);
+                }
+            });
     }
 
     return (
