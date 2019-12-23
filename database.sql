@@ -1,3 +1,6 @@
+CREATE DATABASE dmt_movies_demo;
+\connect dmt_movies_demo;
+
 CREATE TABLE "movie" (
   "id" SERIAL PRIMARY KEY,
   "title" VARCHAR(120) NOT NULL,
