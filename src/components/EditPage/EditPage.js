@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, useState} from 'react';
 import { withRouter } from 'react-router-dom';
 import {connect} from 'react-redux';
 import {withStyles} from '@material-ui/core/styles';
@@ -10,7 +10,7 @@ import EditPageStyle from './EditPage.style';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import { Select, FormControl, InputLabel, MenuItem } from '@material-ui/core';
-
+import Modal from '@material-ui/core/Modal';
 
 class EditPage extends Component{
     state = {
@@ -20,7 +20,8 @@ class EditPage extends Component{
         genres: [],
         genresToAdd: [],
         genresToRemove: [],
-        genreToAdd: ''
+        genreToAdd: '',
+        addGenreModalOpen: false
     }
 
     componentDidMount(){
@@ -42,7 +43,7 @@ class EditPage extends Component{
                     genres: response.data
                 });
             }).catch(err => console.log(err));
-        this.props.dispatch({type: 'GET_GENRES'})
+        this.props.dispatch({type: 'GET_GENRES'});
     }
 
     getDetails =() =>{
@@ -140,9 +141,17 @@ class EditPage extends Component{
     }
 
     handleSelectGenreChange = (event) => {
-        this.setState({
-            genreToAdd: event.target.value
-        });
+        if(event.target.value === 'Add New'){
+            event.stopPropagation();
+            this.setState({
+                genreToAdd: '',
+                addGenreModalOpen: true
+            });
+        } else {
+            this.setState({
+                genreToAdd: event.target.value
+            });
+        }
     }
 
     removeFromGenresToAdd = genre => event => {
@@ -163,7 +172,15 @@ class EditPage extends Component{
         if(s.genreToAdd === ''){
             return;
         }
-        const genre = s.genreToAdd;
+
+        let genre;
+        for(const g of this.props.genres){
+            if(s.genreToAdd === g.name){
+                genre = g;
+                break;
+            }
+        }
+
         for(i = 0; i < s.genresToRemove.length; i++){
             if(s.genresToRemove[i].id === genre.id) break;
         }
@@ -181,6 +198,14 @@ class EditPage extends Component{
                 genres: [...s.genres, genre]
             });
         }
+    }
+
+    getNewGenreFromModal = genre => {
+        this.props.dispatch({type: 'GET_GENRES'});
+        this.setState({
+            addGenreModalOpen: false,
+            genresToAdd: [...this.state.genresToAdd, genre]
+        });
     }
 
     render(){
@@ -213,20 +238,22 @@ class EditPage extends Component{
                     )
                 }).concat(
                     state.genresToAdd.map((genre, i) => (
-                        <Button key={i} className={classes.dangerButton}
+                        <Button key={genre.id} className={classes.dangerButton}
                         onClick={this.removeFromGenresToAdd(genre)}>
                             {genre.name} <DeleteIcon className={classes.buttonIcon}/>
                         </Button>
                     ))
                 )
             );
+
             const genresSection = (
                 <div className={classes.addGenreSection}>
                     {genresDisplay}
                     <FormControl classes={{root: classes.selectGenre}}>
                         <InputLabel className={classes.white}>Select Genre </InputLabel>
-                        <Select value={this.state.genreToAdd} className={classes.white}
+                        <Select native value={this.state.genreToAdd} className={classes.white}
                         onChange={this.handleSelectGenreChange}>
+                            <option value={''}></option>
                             {this.props.genres
                                 .map((genre, i) => {
                                     for(const g of this.state.genres){
@@ -235,8 +262,9 @@ class EditPage extends Component{
                                     for(const g of this.state.genresToAdd){
                                         if(genre.id === g.id) return null;
                                     }
-                                    return <MenuItem key={i} value={genre}>{genre.name}</MenuItem>
+                                    return <option key={genre.id} value={genre.name}>{genre.name}</option>
                             })}
+                            <option value={'Add New'}>Add New...</option>
                         </Select>
                     </FormControl>
                     <Button variant="contained"
@@ -262,12 +290,21 @@ class EditPage extends Component{
                     }}
                 />
             );
+            
+            // RETURN
             return(
                 <div className={classes.editCard}>
+                    <AddGenreModal
+                        open={state.addGenreModalOpen}
+                        cancle={(e)=>{e.preventDefault(); this.setState({addGenreModalOpen: false})}}
+                        classes={classes}
+                        returnNewGenre={this.getNewGenreFromModal}
+                    />
                     <div className={classes.row}>
                         <img src={state.poster}
                             alt={state.title}
-                            className={classes.poster} />
+                            className={classes.poster}
+                        />
                         <div className={classes.infoCard}>
                             {titleInput}
                             {genresSection}
@@ -275,12 +312,17 @@ class EditPage extends Component{
                             <Button className={classes.cancelButton}
                                 variant="contained"
                                 onClick={this.cancleChanges}
-                                >Cancel</Button>
+                            >
+                                Cancel
+                            </Button>
                             <Button
                                 className={classes.saveButton}
                                 variant="contained"
                                 onClick={this.saveChanges}
-                                >Save Changes <SaveIcon className={classes.buttonIcon} /></Button>
+                            >
+                                Save Changes
+                                <SaveIcon className={classes.buttonIcon} />
+                            </Button>
                         </div>
                     </div>
                 </div>
@@ -293,6 +335,73 @@ class EditPage extends Component{
             )
         }
     }
+}
+
+function AddGenreModal(props){
+    const classes = props.classes;
+    const [genre, setGenre] = useState('');
+
+    const handleTextInput = event => {
+        const newChar = event.target.value[event.target.value.length - 1];
+        if(/[a-zA-Z\-\s]/.test(newChar)){
+            setGenre(event.target.value);
+        }
+    }
+
+    const addGenre = e => {
+        axios.post('/api/genres/', {genre: genre})
+            .then(responseOne => {
+                axios.get(`/api/genres/get_id/${genre}`)
+                    .then(responseTwo => {
+                        console.log(responseTwo);
+                        setGenre('');
+                        props.returnNewGenre({name: genre, id: responseTwo.data[0].id});
+                    })
+            }).catch(err => console.log(err));
+    }
+
+    return (
+        <Modal open={props.open} className={classes.modal}>
+            <div className={classes.modalDiv}>
+                <h2>New Genre:</h2>
+                <form onSubmit={addGenre}>
+                    <div>
+                        <TextField
+                            onChange={handleTextInput}
+                            value={genre}
+                            autoFocus
+                            className={classes.white}
+                            inputProps={{
+                                style: { textAlign: "center" }
+                            }}
+                            InputProps={{
+                                className: classes.modalTextField,
+                            }}
+                            InputLabelProps={{
+                                style: {textAlign: 'center'},
+                                className: classes.modalTextField
+                            }}
+                        />
+                    </div>
+                    <div className={classes.modalButtonDiv}>
+                        <Button
+                            className={classes.saveButton}
+                            variant="contained"
+                            type='submit'
+                        >
+                            Add Genre
+                        </Button>
+                        <Button className={classes.cancelButton}
+                            variant="contained"
+                            onClick={props.cancle}
+                        >
+                            Cancel
+                        </Button>
+                    </div>
+                </form>
+            </div>
+        </Modal>
+    )
 }
 
 export default withStyles((theme)=>({...MovieCardStyle(theme), ...EditPageStyle(theme) }))(

@@ -1,3 +1,5 @@
+// Stringify objects into valid url queries
+
 function getUrlQueries(url, queryObject){
     if(!queryObject) return url;
     const queries = Object.entries(queryObject);

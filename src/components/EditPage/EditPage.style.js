@@ -1,3 +1,5 @@
+const lighterGray = '#202029';
+
 const EditPageStyle = theme => ({
     editCard: {
         color: 'white',
@@ -49,6 +51,29 @@ const EditPageStyle = theme => ({
     },
     addGenreSection: {
         display: 'inline-block'
+    },
+    modalDiv: {
+        position: 'absolute',
+        width: '85vw',
+        backgroundColor: '#222222',
+        color: 'white',
+        borderRadius: '5px'
+    },
+    modal: {
+        display: 'flex',
+        flexFlow: 'column nowrap',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+    },
+    modalTextField: {
+        textAlign: 'center',
+        color: 'white',
+        borderColor: 'white'
+    },
+    modalButtonsDiv: {
+        display: 'flex',
+        flexFlow: 'reverse-row wrap'
     }
 });
 

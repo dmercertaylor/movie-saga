@@ -31,6 +31,38 @@ router.delete('/:movieId/:genreId', (req, res) => {
     })
 });
 
+router.post('/', (req, res)=>{
+  let queryText = `SELECT "genre"."name" FROM "genre" WHERE "genre"."name" ILIKE $1`
+  pool.query(queryText, [req.body.genre])
+    .then(result => {
+      if(result.rows.length === 0){
+        pool.query('INSERT INTO "genre" ("name") VALUES ($1)', [req.body.genre])
+          .then(result => {
+            res.sendStatus(200);
+          }).catch(err => {
+            res.sendStatus(500);
+            console.log('Error at insert', err);
+          })
+      } else {
+        res.sendStatus(400);
+      }
+    }).catch(err=>{
+      console.log('error at select', err);
+      res.sendStatus(500);
+    })
+});
+
+router.get('/get_id/:genreName', (req, res)=>{
+  const queryText = 'SELECT "genre"."id" FROM "genre" WHERE "genre"."name" = $1';
+  pool.query(queryText, [req.params.genreName])
+    .then(result => {
+      res.send(result.rows);
+    }).catch(err=>{
+      console.log(err);
+      res.sendStatus(500);
+    });
+});
+
 router.post('/movie_genre', (req, res)=>{
   let queryText = `INSERT INTO "movie_genre" ("movie_id", "genre_id") VALUES`;
   let config = [];
