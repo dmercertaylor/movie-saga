@@ -53,6 +53,7 @@ const EditPageStyle = theme => ({
     modalDiv: {
         position: 'absolute',
         width: '85vw',
+        maxWidth: '32rem',
         backgroundColor: '#222222',
         color: 'white',
         borderRadius: '5px'
